@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+$first = 1;
+
+print "{\n";
+print "\t\"data\":[\n\n";
+
+for (`/etc/zabbix/scripts/smart-discovery`)
+{
+    ($disk, $smartid, $attribute) = m/(\S+) (\S+) (\S+)/;
+
+    print "\t,\n" if not $first;
+    $first = 0;
+
+    print "\t{\n";
+    print "\t\t\"{#DISKNAME}\":\"$disk\",\n";
+    print "\t\t\"{#SMARTID}\":\"$smartid\",\n";
+    print "\t\t\"{#ATTRIBUTE}\":\"$attribute\"\n";
+    print "\t}\n";
+}
+
+print "\n\t]\n";
+print "}\n";

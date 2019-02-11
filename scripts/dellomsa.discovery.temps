@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+ 
+$first = 1;
+$id = 0;
+
+print "{\n";
+print "\t\"data\":[\n\n";
+ 
+for (`/etc/zabbix/scripts/dellomsa-temps`)
+{
+    $id++;
+    ($sensor) = m/(\S+)/;
+ 
+    print "\t,\n" if not $first;
+    $first = 0;
+ 
+    print "\t{\n";
+    print "\t\t\"{#SENSOR}\":\"$sensor\",\n";
+    print "\t\t\"{#ID}\":\"$id\"\n";
+    print "\t}\n";
+}
+ 
+print "\n\t]\n";
+print "}\n";

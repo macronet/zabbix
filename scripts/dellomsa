@@ -1,0 +1,46 @@
+#!/bin/bash
+### Parse Dell OMSA data for Zabbix
+
+PATH=$PATH:/opt/dell/srvadmin/bin
+if [[ $2 =~ ^[0-9]+$ ]]
+then
+	VAR2=$2
+else
+	VAR2="0"
+fi
+if [[ $3 =~ ^[0-9]* ]]
+then
+	VAR3=$3
+else
+	VAR3="0"
+fi
+
+if [ -n "$1" ]
+then
+case $1 in
+	chassis.batteries) omreport chassis batteries | grep -E "^Health" | grep -vc "Ok" ;;
+	chassis.fans) omreport chassis fans | grep -E "^Status" | grep -vc "Ok" ;;
+	chassis.memory) omreport chassis memory | grep -E "^Health" | grep -vc "Ok" ;;
+	chassis.pwrsupplies) omreport chassis pwrsupplies | grep -E "^Status" | grep -vc "Ok" ;;
+        chassis.pwrsupplies.redundancy) omreport chassis pwrsupplies | grep -E "^Status" | grep -vc "Ok" ;;
+	chassis.processors) omreport chassis processors | grep -E "^Health" | grep -vc "Ok" ;;
+	chassis.model) omreport chassis info | grep "Chassis Model" | awk -F ' : ' '{print $2}' ;;
+	chassis.servicetag) omreport chassis info | grep "Service Tag" | awk -F ' : ' '{print $2}' ;;
+	chassis.servicecode) omreport chassis info | grep "Service Code" | awk -F ' : ' '{print $2}' ;;
+	chassis.temperatures) omreport chassis temps | grep -E "^Status" | grep -vc "Ok" ;;
+        chassis.temperatures.value) omreport chassis temps | awk '/^Reading/ {print $3}' | sed -n "$VAR2"'p' ;;
+	chassis.volts) omreport chassis volts | grep -E "^Health" | grep -vc "Ok" ;;
+	storage.batteries) omreport storage battery controller=$VAR2 battery=$VAR3 | grep -E "^Status" | grep -vc "Ok" ;;
+	storage.controller) omreport storage controller | grep -E "^Status" | grep -vc "Ok" ;;
+	storage.controller.name) omreport storage controller controller=$VAR2 | grep -E "^Controllers" -A3 | grep -E "^Name" | awk -F ' : ' '{print $2}' ;;
+	storage.pdisk) omreport storage pdisk controller=$VAR2 | grep -E "^State" | grep -vcE "(Ready|Online|Non-RAID)" ;;
+	storage.pdisk.state) omreport storage pdisk controller=$VAR2 pdisk=$VAR2:$VAR3 | grep -E "^State" | awk -F ' : ' '{print $2}' ;;
+	storage.vdisk) omreport storage vdisk controller=$VAR2 | grep -E "^State" | grep -vc "Ready" ;;
+	storage.vdisk.state) omreport storage vdisk controller=$VAR2 vdisk=$VAR3 | grep -E "^State" | awk -F ' : ' '{print $2}' ;;
+	* ) echo "-1" ;;
+esac
+else
+echo $1
+	echo "-1"
+	exit 1
+fi

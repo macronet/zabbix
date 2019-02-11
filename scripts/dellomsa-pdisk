@@ -1,0 +1,5 @@
+#!/bin/bash
+PATH=$PATH:/opt/dell/srvadmin/bin
+for i in `omreport storage controller | grep -E "^ID" | awk -F " : " '{print $2}'`;
+	do omreport storage pdisk controller=$i | grep -E "^ID" | awk -F " : " '{print $2}' | awk -F ":" '{print $1, $2 ":" $3}'
+done

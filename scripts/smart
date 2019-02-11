@@ -1,0 +1,18 @@
+#!/bin/bash
+### Parse SMART-data for Zabbix
+
+SMARTCTL=$(which smartctl)
+if [[ "$1" == ata* ]]; then
+ PREFIX="/dev/disk/by-id/"
+else
+ PREFIX="/dev/"
+fi
+
+VALUE=$(sudo "$SMARTCTL" -A "$PREFIX""$1" | grep -E "^([[:blank:]]?+$2 )" |
+if [[ -n "$3" && "$3" == "RAW" ]]; then
+ awk '{print $10}'
+else
+ awk '{print $4}'
+fi)
+
+echo ${VALUE%%[^0-9]*}

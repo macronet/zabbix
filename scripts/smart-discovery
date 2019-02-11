@@ -1,0 +1,7 @@
+#!/bin/bash
+### Discover ata-disks for SMART
+SMARTCTL=$(which smartctl)
+for DISK in $(ls -la /dev/disk/by-id/ata-* | awk '$NF ~ /((s|v|h)d[a-z]+$)/ {print $9}' | sed -e 's:/dev/disk/by-id/::');
+ do
+  sudo $SMARTCTL -A /dev/disk/by-id/$DISK | awk -v DISK="$DISK" '/^( )*[0-9]/ {print DISK, $1, $2}'
+done
